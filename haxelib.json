@@ -1,0 +1,11 @@
+{
+  "name": "jive-nativetext",
+  "url": "https://github.com/ngrebenshikov/jive-nativetext",
+  "license": "MIT",
+  "tags": [ "GUI", "UI", "AsWing", "Swing", "Native text"],
+  "description": "A text field implementation based on NativeText OpenFL extension",
+  "version": "0.0.1",
+  "releasenote": "",
+  "contributors": [ "ngrebenshikov" ],
+  "dependencies": {}
+}
