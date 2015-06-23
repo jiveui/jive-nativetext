@@ -63,6 +63,19 @@ class JTextComponent extends Component  implements EditableComponent{
 
     public var nativeTextField: NativeTextField;
 
+    public var keyboardType(get, set): NativeTextFieldKeyboardType;
+    private var _keyboardType: NativeTextFieldKeyboardType;
+    private function get_keyboardType(): NativeTextFieldKeyboardType {
+        return _keyboardType;
+    }
+    private function set_keyboardType(v: NativeTextFieldKeyboardType): NativeTextFieldKeyboardType {
+        _keyboardType = v;
+        if (null != nativeTextField) {
+            nativeTextField.Configure({ keyboardType: _keyboardType });
+        }
+        return v;
+    }
+
 	/**
     * @see TextField.wordWrap
     **/
@@ -152,6 +165,8 @@ class JTextComponent extends Component  implements EditableComponent{
             bindx.Bind.notify(this.text);
         });
 
+        keyboardType = NativeTextFieldKeyboardType.Default;
+
         var config:NativeTextFieldConfig = {
             x: 0,
             y: 0,
@@ -163,7 +178,7 @@ class JTextComponent extends Component  implements EditableComponent{
             fontSize: 36,
             fontColor: 0x333333,
             textAlignment: NativeTextFieldAlignment.Left,
-            keyboardType: NativeTextFieldKeyboardType.Default,
+            keyboardType: _keyboardType,
             returnKeyType: NativeTextFieldReturnKeyType.Default
         };
 
@@ -524,6 +539,12 @@ class JTextComponent extends Component  implements EditableComponent{
 	@:dox(hide)
     public function setDisplayAsPassword(b:Bool):Void {
 		getTextField().displayAsPassword = b;
+        if (null != nativeTextField) {
+            nativeTextField.Configure({
+                isPassword: b,
+                keyboardType: if (!b) keyboardType else NativeTextFieldKeyboardType.Password
+            });
+        }
 	}
 
     @:dox(hide)
