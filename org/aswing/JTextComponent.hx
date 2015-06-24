@@ -351,6 +351,12 @@ class JTextComponent extends Component  implements EditableComponent{
 	}
 
     @:dox(hide)
+    override public function setVisible(v:Bool):Void {
+        nativeTextField.Configure({visible: v});
+        super.setVisible(v);
+    }
+
+    @:dox(hide)
 	public function getText():String{
 		return if (null != nativeTextField) nativeTextField.GetText() else getTextField().text;
 	}
