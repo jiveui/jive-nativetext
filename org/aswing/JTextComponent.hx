@@ -5,6 +5,7 @@
 package org.aswing;
 
 
+import haxe.Timer;
 import nativetext.event.NativeTextEvent;
 import org.aswing.geom.IntPoint;
 import nativetext.NativeTextFieldReturnKeyType;
@@ -183,11 +184,20 @@ class JTextComponent extends Component  implements EditableComponent{
         };
 
         nativeTextField = new NativeTextField(config);
-        nativeTextField.addEventListener(NativeTextEvent.CHANGE, function(e) { trace(text); bindx.Bind.notify(this.text); });
+        nativeTextField.addEventListener(NativeTextEvent.CHANGE, function(e) {
+            Timer.delay(function() {
+                bindx.Bind.notify(this.text);
+            }, 10); });
 
         nativeTextField.addEventListener(NativeTextEvent.FOCUS_IN, function(e) { requestFocus(); });
 
+        addEventListener(Event.ADDED_TO_STAGE, function(e) {
+            nativeTextField.Configure({visible: visible});
+        });
 
+        addEventListener(Event.REMOVED_FROM_STAGE, function(e) {
+            nativeTextField.Configure({visible: false});
+        });
 
         addEventListener(AWEvent.FOCUS_GAINED, function(e) {
             nativeTextField.SetFocus();
