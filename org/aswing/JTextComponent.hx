@@ -77,6 +77,14 @@ class JTextComponent extends Component  implements EditableComponent{
         return v;
     }
 
+    @bindable public var nativeTextFieldVisibility(get, set): Bool;
+    private var _nativeTextFieldVisibility: Bool;
+    private function get_nativeTextFieldVisibility(): Bool { return _nativeTextFieldVisibility; }
+    private function set_nativeTextFieldVisibility(v: Bool): Bool {
+        _nativeTextFieldVisibility = v;
+        nativeTextField.Configure({visible: v && visible});
+        return v;
+    }    
 	/**
     * @see TextField.wordWrap
     **/
@@ -173,7 +181,7 @@ class JTextComponent extends Component  implements EditableComponent{
             y: 0,
             width: 0,
             height: 0,
-            visible: true,
+            visible: false,
             enabled: true,
             placeholder: "",
             fontSize: 36,
@@ -192,11 +200,11 @@ class JTextComponent extends Component  implements EditableComponent{
         nativeTextField.addEventListener(NativeTextEvent.FOCUS_IN, function(e) { requestFocus(); });
 
         addEventListener(Event.ADDED_TO_STAGE, function(e) {
-            nativeTextField.Configure({visible: visible});
+            nativeTextFieldVisibility = visible;
         });
 
         addEventListener(Event.REMOVED_FROM_STAGE, function(e) {
-            nativeTextField.Configure({visible: false});
+            nativeTextFieldVisibility = false;
         });
 
         addEventListener(AWEvent.FOCUS_GAINED, function(e) {
@@ -362,7 +370,7 @@ class JTextComponent extends Component  implements EditableComponent{
 
     @:dox(hide)
     override public function setVisible(v:Bool):Void {
-        nativeTextField.Configure({visible: v});
+        nativeTextField.Configure({visible: v && nativeTextFieldVisibility});
         super.setVisible(v);
     }
 
