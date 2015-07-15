@@ -82,9 +82,12 @@ class JTextComponent extends Component  implements EditableComponent{
     private function get_nativeTextFieldVisibility(): Bool { return _nativeTextFieldVisibility; }
     private function set_nativeTextFieldVisibility(v: Bool): Bool {
         _nativeTextFieldVisibility = v;
-        nativeTextField.Configure({visible: v && visible});
+        updateNativeTextFieldVisibility();
         return v;
-    }    
+    }
+    private function updateNativeTextFieldVisibility() {
+        nativeTextField.Configure({visible: nativeTextFieldVisibility && visible && isOnStage()});
+    }
 	/**
     * @see TextField.wordWrap
     **/
@@ -200,11 +203,11 @@ class JTextComponent extends Component  implements EditableComponent{
         nativeTextField.addEventListener(NativeTextEvent.FOCUS_IN, function(e) { requestFocus(); });
 
         addEventListener(Event.ADDED_TO_STAGE, function(e) {
-            nativeTextFieldVisibility = visible;
+            updateNativeTextFieldVisibility();
         });
 
         addEventListener(Event.REMOVED_FROM_STAGE, function(e) {
-            nativeTextFieldVisibility = false;
+            updateNativeTextFieldVisibility();
         });
 
         addEventListener(AWEvent.FOCUS_GAINED, function(e) {
@@ -283,6 +286,7 @@ class JTextComponent extends Component  implements EditableComponent{
         super.setEnabled(b);
 		getTextField().selectable = b;
 		getTextField().mouseEnabled = b;
+        nativeTextField.Configure({enabled: _editable && _enabled});
         updateTextForeground();
 	}
 	
@@ -301,7 +305,8 @@ class JTextComponent extends Component  implements EditableComponent{
 			invalidateColumnRowSize();
 			repaint();
 		}
-	}
+        nativeTextField.Configure({enabled: _editable && _enabled});
+    }
 	
 	@:dox(hide)
     public function isEditable():Bool {
@@ -346,6 +351,7 @@ class JTextComponent extends Component  implements EditableComponent{
 		if (getForeground() != null) {
     		getTextField().textColor = getForeground().getRGB();
     		getTextField().alpha = getForeground().getAlpha();
+            nativeTextField.Configure({fontColor: getForeground().getRGB()});
   		}
 	}
 
@@ -370,7 +376,7 @@ class JTextComponent extends Component  implements EditableComponent{
 
     @:dox(hide)
     override public function setVisible(v:Bool):Void {
-        nativeTextField.Configure({visible: v && nativeTextFieldVisibility});
+        updateNativeTextFieldVisibility();
         super.setVisible(v);
     }
 
