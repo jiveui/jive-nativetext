@@ -85,8 +85,8 @@ class JTextComponent extends Component  implements EditableComponent{
         updateNativeTextFieldVisibility();
         return v;
     }
-    private function updateNativeTextFieldVisibility() {
-        nativeTextField.Configure({visible: nativeTextFieldVisibility && visible && isOnStage()});
+    private function updateNativeTextFieldVisibility(removingFromStage: Bool = false) {
+        nativeTextField.Configure({visible: nativeTextFieldVisibility && visible && !removingFromStage && isOnStage()});
     }
 	/**
     * @see TextField.wordWrap
@@ -207,7 +207,7 @@ class JTextComponent extends Component  implements EditableComponent{
         });
 
         addEventListener(Event.REMOVED_FROM_STAGE, function(e) {
-            updateNativeTextFieldVisibility();
+            updateNativeTextFieldVisibility(true);
         });
 
         addEventListener(AWEvent.FOCUS_GAINED, function(e) {
