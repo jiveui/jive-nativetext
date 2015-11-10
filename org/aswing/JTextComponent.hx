@@ -162,7 +162,7 @@ class JTextComponent extends Component  implements EditableComponent{
     public var selectionEndIndex(get, null): Int;
     private function get_selectionEndIndex(): Int { return getSelectionEndIndex(); }
 
-    public function new(){
+    public function new(?nativeTextFieldConfig: NativeTextFieldConfig){
 		super();
 		
 		textField = new TextField();
@@ -177,22 +177,27 @@ class JTextComponent extends Component  implements EditableComponent{
             bindx.Bind.notify(this.text);
         });
 
-        keyboardType = NativeTextFieldKeyboardType.Default;
 
-        var config:NativeTextFieldConfig = {
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0,
-            visible: false,
-            enabled: true,
-            placeholder: "",
-            fontSize: 36,
-            fontColor: 0x333333,
-            textAlignment: NativeTextFieldAlignment.Left,
-            keyboardType: _keyboardType,
-            returnKeyType: NativeTextFieldReturnKeyType.Default
-        };
+        var config:NativeTextFieldConfig =
+            if (null != nativeTextFieldConfig)
+                nativeTextFieldConfig
+            else
+                {
+                    x: 0,
+                    y: 0,
+                    width: 0,
+                    height: 0,
+                    visible: false,
+                    enabled: true,
+                    placeholder: "",
+                    fontSize: 36,
+                    fontColor: 0x333333,
+                    textAlignment: NativeTextFieldAlignment.Left,
+                    keyboardType: NativeTextFieldKeyboardType.Default,
+                    returnKeyType: NativeTextFieldReturnKeyType.Default
+                };
+
+        keyboardType = if (null != config.keyboardType) config.keyboardType else NativeTextFieldKeyboardType.Default;
 
         nativeTextField = new NativeTextField(config);
         nativeTextField.addEventListener(NativeTextEvent.CHANGE, function(e) {
