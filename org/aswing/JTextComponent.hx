@@ -5,6 +5,7 @@
 package org.aswing;
 
 
+import flash.display.DisplayObject;
 import haxe.Timer;
 import nativetext.event.NativeTextEvent;
 import org.aswing.geom.IntPoint;
@@ -86,7 +87,7 @@ class JTextComponent extends Component  implements EditableComponent{
         return v;
     }
     private function updateNativeTextFieldVisibility(removingFromStage: Bool = false) {
-        nativeTextField.Configure({visible: nativeTextFieldVisibility && visible && !removingFromStage && isOnStage()});
+        nativeTextField.Configure({visible: nativeTextFieldVisibility && visible && !removingFromStage && isOnStage() && !isAnyParentInvisible()});
     }
 	/**
     * @see TextField.wordWrap
@@ -225,10 +226,39 @@ class JTextComponent extends Component  implements EditableComponent{
             doFocusTransition();
         });
 
+        addEventListener(Event.ENTER_FRAME, function(e) {
+            var t = getTextField();
+            var global = getGlobalLocation();
+            nativeTextField.Configure({
+                x: global.x + t.x,
+                y: global.y + t.y
+            });
+            updateNativeTextFieldVisibility();
+        });
+
         #if(flash9)
         textField.addEventListener(TextEvent.TEXT_INPUT, __onTextComponentTextInput);
         #end
 	}
+
+    private function isAnyParentInvisible() {
+        var o: DisplayObject = this;
+        while (o != null) {
+            if (!o.visible) return true;
+            o = o.parent;
+        }
+        return false;
+    }
+
+//    private function getFullAlpha(): Float {
+//        var a = 1.0;
+//        var o: DisplayObject = this;
+//        while (o != null) {
+//            a *= a.alpha;
+//            o = o.parent;
+//        }
+//        return a;
+//    }
 
     inline private function updateTextForeground() {
         var color: ASColor = foreground;
