@@ -5,6 +5,7 @@
 package org.aswing;
 
 
+import flash.geom.Point;
 import flash.display.DisplayObject;
 import haxe.Timer;
 import nativetext.event.NativeTextEvent;
@@ -61,7 +62,10 @@ class JTextComponent extends Component  implements EditableComponent{
     /**
 	 * The internal <code>TextField</code> instance.
 	 */
-	public var textField(default, null):TextField;
+	private var isAnyParentInvisibleCache: Bool;
+    private var positionCache: Point;
+
+    public var textField(default, null):TextField;
 
     public var nativeTextField: NativeTextField;
 
@@ -226,14 +230,23 @@ class JTextComponent extends Component  implements EditableComponent{
             doFocusTransition();
         });
 
+        positionCache = new Point(0,0);
         addEventListener(Event.ENTER_FRAME, function(e) {
             var t = getTextField();
             var global = getGlobalLocation();
-            nativeTextField.Configure({
-                x: global.x + t.x,
-                y: global.y + t.y
-            });
-            updateNativeTextFieldVisibility();
+            var x = global.x + t.x;
+            var y = global.y + t.y;
+            var invisible = isAnyParentInvisible();
+
+            if (invisible != isAnyParentInvisibleCache || x != positionCache.x || y != positionCache.y) {
+                positionCache = new Point(x,y);
+                isAnyParentInvisibleCache = invisible;
+                nativeTextField.Configure({
+                    x: x,
+                    y: y,
+                    visible: !invisible
+                });
+            }
         });
 
         #if(flash9)
