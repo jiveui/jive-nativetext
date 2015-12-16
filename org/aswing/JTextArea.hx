@@ -10,12 +10,16 @@ import nativetext.NativeTextFieldConfig;
 import nativetext.NativeTextFieldKeyboardType;
 import flash.geom.Rectangle;
 import flash.events.Event;
+
 import flash.text.TextField;
+import flash.text.TextFormat;
+
 import org.aswing.event.InteractiveEvent;
 import org.aswing.geom.IntDimension;
 import org.aswing.geom.IntPoint;
 import org.aswing.geom.IntRectangle;
 import org.aswing.plaf.basic.BasicTextAreaUI;
+import nativetext.event.NativeTextEvent;
 
 /**
  * A `JTextArea` is a multi-line area that displays text.
@@ -113,6 +117,20 @@ class JTextArea extends JTextComponent  implements Viewportable{
     private function get_horizontalBlockIncrement(): Int { return getHorizontalBlockIncrement(); }
     private function set_horizontalBlockIncrement(v: Int): Int { setHorizontalBlockIncrement(v); return v; }
 
+    /**
+    * A hint that is displayed inside text field when `text` is empty.
+    **/
+    private var hintField:TextField;
+    public var inlineHint(get, set): String;
+    private function get_inlineHint(): String {
+    	return hintField.text;
+    }
+    private function set_inlineHint(v: String): String {
+    	hintField.text = v;
+    	addChildAt(hintField, 1);
+        return v;
+    }
+
 	public function new(text:String="", rows:Int=0, columns:Int=0){
         super({
                 x: 0,
@@ -151,6 +169,31 @@ class JTextArea extends JTextComponent  implements Viewportable{
 		getTextField().addEventListener(Event.SCROLL, __onTextAreaTextScroll);
 		
 		updateUI();
+
+
+		// create placeholder
+		hintField = new TextField();
+		hintField.defaultTextFormat = getTextField().defaultTextFormat;
+		hintField.setTextFormat(getTextField().getTextFormat());
+		hintField.autoSize = getTextField().autoSize;
+		hintField.backgroundColor = getTextField().backgroundColor;
+		hintField.border = getTextField().border;
+		hintField.embedFonts = getTextField().embedFonts;
+		hintField.multiline = false;
+		hintField.selectable = false;
+		hintField.autoSize = getTextField().autoSize;
+		hintField.type = getTextField().type;
+		hintField.textColor = getTextField().textColor;
+		hintField.width = getTextField().width;
+		hintField.height = getTextField().height;
+		hintField.x = getTextField().x;
+		hintField.y = getTextField().y;
+		hintField.mouseEnabled = false;
+		hintField.alpha = 0.5;
+
+		nativeTextField.addEventListener(NativeTextEvent.CHANGE, function(e) {
+			if (nativeTextField.GetText() == '') hintField.visible = true else hintField.visible = false;
+		});
 	}
 	
 	@:dox(hide)
@@ -583,5 +626,22 @@ class JTextArea extends JTextComponent  implements Viewportable{
 		if(p.x < 0) p.x = 0;
 		if(p.y < 0) p.y = 0;
 		return p;
+	}
+
+	override private function applyBoundsToText(b:IntRectangle): Void {
+		super.applyBoundsToText(b);
+		hintField.x = b.x;
+		hintField.y = b.y;
+		hintField.width = b.width;
+		hintField.height = b.height;
+	}
+
+	override public function setText(text: String): Void {
+		super.setText(text);
+
+		if (text == null) text ="";
+		
+		if (hintField.text != "" && text == "")
+			hintField.visible = true;
 	}
 }
