@@ -240,6 +240,10 @@ class JTextComponent extends Component  implements EditableComponent{
 
             if (invisible != isAnyParentInvisibleCache || x != positionCache.x || y != positionCache.y) {
                 positionCache = new Point(x,y);
+                nativeTextField.Configure({
+                    x: x,
+                    y: y
+                });
                 updateNativeTextFieldVisibility(false);
             }
         });
