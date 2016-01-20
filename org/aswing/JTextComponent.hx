@@ -93,6 +93,15 @@ class JTextComponent extends Component  implements EditableComponent{
     private function updateNativeTextFieldVisibility(removingFromStage: Bool = false) {
         nativeTextField.Configure({visible: nativeTextFieldVisibility && visible && !removingFromStage && isOnStage() && !isAnyParentInvisible()});
     }
+
+    @bindable public var contentHeight(get, set): Float;
+    private function get_contentHeight(): Float {
+        return nativeTextField.GetContentHeight();
+    }
+    private function set_contentHeight(v: Float): Float {
+        return v;
+    }
+
 	/**
     * @see TextField.wordWrap
     **/
@@ -208,6 +217,7 @@ class JTextComponent extends Component  implements EditableComponent{
         nativeTextField.addEventListener(NativeTextEvent.CHANGE, function(e) {
             Timer.delay(function() {
                 bindx.Bind.notify(this.text);
+                bindx.Bind.notify(this.contentHeight);
             }, 10); });
 
         nativeTextField.addEventListener(NativeTextEvent.FOCUS_IN, function(e) { requestFocus(); });
