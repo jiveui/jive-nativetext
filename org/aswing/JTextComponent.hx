@@ -91,7 +91,11 @@ class JTextComponent extends Component  implements EditableComponent{
         return v;
     }
     private function updateNativeTextFieldVisibility(removingFromStage: Bool = false) {
-        nativeTextField.Configure({visible: nativeTextFieldVisibility && visible && !removingFromStage && isOnStage() && !isAnyParentInvisible()});
+        nativeTextField.Configure({visible: shouldNativeTextFieldBeVisible(removingFromStage)});
+    }
+
+    private inline function shouldNativeTextFieldBeVisible(removingFromStage: Bool = false) {
+        return nativeTextFieldVisibility && visible && !removingFromStage && isOnStage() && !isAnyParentInvisible();
     }
 
     @bindable public var contentHeight(get, set): Float;
@@ -180,7 +184,7 @@ class JTextComponent extends Component  implements EditableComponent{
 		super();
 		
 		textField = new TextField();
-		textField.type = TextFieldType.INPUT;
+		textField.type = TextFieldType.DYNAMIC;
 		textField.autoSize = TextFieldAutoSize.NONE;
 		textField.background = false;
 		_editable = true;
@@ -220,7 +224,14 @@ class JTextComponent extends Component  implements EditableComponent{
                 bindx.Bind.notify(this.contentHeight);
             }, 10); });
 
-        nativeTextField.addEventListener(NativeTextEvent.FOCUS_IN, function(e) { requestFocus(); });
+        nativeTextField.addEventListener(NativeTextEvent.FOCUS_IN, function(e) {
+            requestFocus();
+            stage.dispatchEvent(new nativetext.events.SoftKeyboardEvent(nativetext.events.SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATE));
+        });
+
+        nativeTextField.addEventListener(NativeTextEvent.FOCUS_OUT, function(e) {
+            stage.dispatchEvent(new nativetext.events.SoftKeyboardEvent(nativetext.events.SoftKeyboardEvent.SOFT_KEYBOARD_DEACTIVATE));
+        });
 
         addEventListener(Event.ADDED_TO_STAGE, function(e) {
             updateNativeTextFieldVisibility();
@@ -231,8 +242,10 @@ class JTextComponent extends Component  implements EditableComponent{
         });
 
         addEventListener(AWEvent.FOCUS_GAINED, function(e) {
-            nativeTextField.SetFocus();
-            doFocusTransition();
+            if (shouldNativeTextFieldBeVisible()) {
+                nativeTextField.SetFocus();
+                doFocusTransition();
+            }
         });
 
         addEventListener(AWEvent.FOCUS_LOST, function(e) {
@@ -350,18 +363,18 @@ class JTextComponent extends Component  implements EditableComponent{
 	@:dox(hide)
     public function setEditable(b:Bool):Void {
 	 
-		if(b != _editable){
-			_editable = b;
-			if(b)	{
-				getTextField().type = TextFieldType.INPUT;
-			}else{
-				getTextField().type = TextFieldType.DYNAMIC;
-			}
-            updateTextForeground();
-			invalidate();
-			invalidateColumnRowSize();
-			repaint();
-		}
+//		if(b != _editable){
+//			_editable = b;
+//			if(b)	{
+//				getTextField().type = TextFieldType.INPUT;
+//			}else{
+//				getTextField().type = TextFieldType.DYNAMIC;
+//			}
+//            updateTextForeground();
+//			invalidate();
+//			invalidateColumnRowSize();
+//			repaint();
+//		}
         nativeTextField.Configure({enabled: _editable && _enabled});
     }
 	
