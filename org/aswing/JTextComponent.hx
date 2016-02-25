@@ -95,6 +95,11 @@ class JTextComponent extends Component  implements EditableComponent{
     }
 
     private inline function shouldNativeTextFieldBeVisible(removingFromStage: Bool = false) {
+//        trace("nativeTextFieldVisibility: " + nativeTextFieldVisibility);
+//        trace("visible: " + visible);
+//        trace("removingFromStage: " + removingFromStage);
+//        trace("isOnStage: " + isOnStage());
+//        trace("isAnyParentInvisible: " + isAnyParentInvisible());
         return nativeTextFieldVisibility && visible && !removingFromStage && isOnStage() && !isAnyParentInvisible();
     }
 
@@ -227,10 +232,13 @@ class JTextComponent extends Component  implements EditableComponent{
         nativeTextField.addEventListener(NativeTextEvent.FOCUS_IN, function(e) {
             requestFocus();
             stage.dispatchEvent(new nativetext.events.SoftKeyboardEvent(nativetext.events.SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATE));
+//            trace("FOCUS_IN");
         });
 
         nativeTextField.addEventListener(NativeTextEvent.FOCUS_OUT, function(e) {
+
             stage.dispatchEvent(new nativetext.events.SoftKeyboardEvent(nativetext.events.SoftKeyboardEvent.SOFT_KEYBOARD_DEACTIVATE));
+//            trace("FOCUS_OUT");
         });
 
         addEventListener(Event.ADDED_TO_STAGE, function(e) {
@@ -242,14 +250,20 @@ class JTextComponent extends Component  implements EditableComponent{
         });
 
         addEventListener(AWEvent.FOCUS_GAINED, function(e) {
+//            trace("FOCUS_GAINED");
             if (shouldNativeTextFieldBeVisible()) {
-                nativeTextField.SetFocus();
+                if (!nativeTextField.IsFocused()) {
+                    nativeTextField.SetFocus();
+                }
                 doFocusTransition();
             }
         });
 
         addEventListener(AWEvent.FOCUS_LOST, function(e) {
-            nativeTextField.ClearFocus();
+//            trace("FOCUS_LOST");
+            if (nativeTextField.IsFocused()) {
+                nativeTextField.ClearFocus();
+            }
             doFocusTransition();
         });
 
@@ -263,13 +277,14 @@ class JTextComponent extends Component  implements EditableComponent{
 
             if (invisible != isAnyParentInvisibleCache || x != positionCache.x || y != positionCache.y) {
                 positionCache = new Point(x,y);
+                isAnyParentInvisibleCache = invisible;
                 nativeTextField.Configure({
                     x: x,
                     y: y
                 });
                 updateNativeTextFieldVisibility(false);
             }
-        });
+        }, false, 10);
 
         #if(flash9)
         textField.addEventListener(TextEvent.TEXT_INPUT, __onTextComponentTextInput);
