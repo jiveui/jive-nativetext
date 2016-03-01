@@ -232,13 +232,13 @@ class JTextComponent extends Component  implements EditableComponent{
         nativeTextField.addEventListener(NativeTextEvent.FOCUS_IN, function(e) {
             requestFocus();
             stage.dispatchEvent(new nativetext.events.SoftKeyboardEvent(nativetext.events.SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATE));
-//            trace("FOCUS_IN");
+           // trace("FOCUS_IN");
         });
 
         nativeTextField.addEventListener(NativeTextEvent.FOCUS_OUT, function(e) {
 
             stage.dispatchEvent(new nativetext.events.SoftKeyboardEvent(nativetext.events.SoftKeyboardEvent.SOFT_KEYBOARD_DEACTIVATE));
-//            trace("FOCUS_OUT");
+           // trace("FOCUS_OUT");
         });
 
         addEventListener(Event.ADDED_TO_STAGE, function(e) {
@@ -250,17 +250,21 @@ class JTextComponent extends Component  implements EditableComponent{
         });
 
         addEventListener(AWEvent.FOCUS_GAINED, function(e) {
-//            trace("FOCUS_GAINED");
+           // trace("FOCUS_GAINED");
             if (shouldNativeTextFieldBeVisible()) {
                 if (!nativeTextField.IsFocused()) {
-                    nativeTextField.SetFocus();
+                    #if (android)
+                        Timer.delay(nativeTextField.SetFocus, 100);
+                    #else
+                        nativeTextField.SetFocus();
+                    #end
                 }
                 doFocusTransition();
             }
         });
 
         addEventListener(AWEvent.FOCUS_LOST, function(e) {
-//            trace("FOCUS_LOST");
+           // trace("FOCUS_LOST");
             if (nativeTextField.IsFocused()) {
                 nativeTextField.ClearFocus();
             }
